@@ -18,6 +18,8 @@ service NodeveilService {
   rpc GetBacklinks(GetBacklinksRequest) returns (ListLinksResponse);
   rpc GetNeighbors(GetNeighborsRequest) returns (ListLinksResponse);
   rpc GetGraphStats(GetGraphStatsRequest) returns (GetGraphStatsResponse);
+  rpc GetGraphNeighborhood(GetGraphNeighborhoodRequest) returns (GetGraphNeighborhoodResponse);
+  rpc GetGraphCounts(GetGraphCountsRequest) returns (GetGraphCountsResponse);
   rpc GetNodeMeta(GetNodeMetaRequest) returns (GetNodeMetaResponse);
   rpc ListRecentEvents(ListRecentEventsRequest) returns (ListRecentEventsResponse);
 }
@@ -48,3 +50,10 @@ message GetNodeMetaResponse { Node node=1; }
 message ListRecentEventsRequest { int32 limit=1; }
 message Event { int64 ts=1; string type=2; string abs_path=3; string detail_json=4; }
 message ListRecentEventsResponse { repeated Event events=1; }
+
+message GetGraphNeighborhoodRequest { string node_id=1; int32 depth=2; int32 limit=3; string direction=4; repeated string relation_types=5; repeated string extensions=6; string cursor=7; }
+message GraphNode { string id=1; string abs_path=2; string rel_path=3; string ext=4; int64 size_bytes=5; }
+message GraphEdge { string id=1; string from_id=2; string to_id=3; string relation_type=4; }
+message GetGraphNeighborhoodResponse { repeated GraphNode nodes=1; repeated GraphEdge edges=2; bool truncated=3; string next_cursor=4; }
+message GetGraphCountsRequest { string node_id=1; }
+message GetGraphCountsResponse { int64 out=1; int64 in=2; }

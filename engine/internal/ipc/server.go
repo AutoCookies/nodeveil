@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/nodeveil/nodeveil/engine/internal/domain"
 	"github.com/nodeveil/nodeveil/engine/internal/service"
@@ -28,6 +29,8 @@ func New(addr string, indexSvc *service.IndexService, graphSvc *service.GraphSer
 	mux.HandleFunc("/graph/backlinks", s.backlinks)
 	mux.HandleFunc("/graph/neighbors", s.neighbors)
 	mux.HandleFunc("/graph/stats", s.stats)
+	mux.HandleFunc("/graph/neighborhood", s.neighborhood)
+	mux.HandleFunc("/graph/counts", s.counts)
 	mux.HandleFunc("/node/meta", s.nodeMeta)
 	mux.HandleFunc("/diagnostics/events", s.events)
 	mux.HandleFunc("/open", s.openPath)
@@ -175,4 +178,35 @@ func (s *Server) events(w http.ResponseWriter, r *http.Request) {
 }
 func (s *Server) openPath(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]bool{"ok": true})
+}
+
+func (s *Server) neighborhood(w http.ResponseWriter, r *http.Request) {
+	depth, _ := strconv.Atoi(r.URL.Query().Get("depth"))
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	nodeID := r.URL.Query().Get("nodeId")
+	d := domain.Direction(r.URL.Query().Get("direction"))
+	if d == "" {
+		d = domain.DirectionBoth
+	}
+	filters := domain.GraphFilters{Direction: d}
+	if rel := r.URL.Query().Get("relations"); rel != "" {
+		filters.RelationTypes = strings.Split(rel, ",")
+	}
+	if ex := r.URL.Query().Get("ext"); ex != "" {
+		filters.Extensions = strings.Split(ex, ",")
+	}
+	resp, err := s.graphSvc.GetNeighborhood(r.Context(), nodeID, depth, limit, filters, r.URL.Query().Get("cursor"))
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, resp)
+}
+func (s *Server) counts(w http.ResponseWriter, r *http.Request) {
+	resp, err := s.graphSvc.GetCounts(r.Context(), r.URL.Query().Get("nodeId"))
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, resp)
 }

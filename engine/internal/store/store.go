@@ -438,3 +438,108 @@ func (s *Store) RecentEvents(ctx context.Context, limit int) ([]map[string]any, 
 	}
 	return rows, nil
 }
+
+func (s *Store) GraphCounts(ctx context.Context, nodeID string) (domain.GraphCounts, error) {
+	out, err := s.exec(ctx, fmt.Sprintf("SELECT (SELECT COUNT(1) FROM edges WHERE from_id='%s' AND deleted_at IS NULL)||(char(124))||(SELECT COUNT(1) FROM edges WHERE to_id='%s' AND deleted_at IS NULL);", esc(nodeID), esc(nodeID)))
+	if err != nil {
+		return domain.GraphCounts{}, err
+	}
+	parts := strings.Split(strings.TrimSpace(out), "|")
+	if len(parts) != 2 {
+		return domain.GraphCounts{}, nil
+	}
+	o, _ := strconv.ParseInt(parts[0], 10, 64)
+	i, _ := strconv.ParseInt(parts[1], 10, 64)
+	return domain.GraphCounts{Out: o, In: i}, nil
+}
+
+func (s *Store) GraphNeighborhood(ctx context.Context, nodeID string, depth, limit int, filters domain.GraphFilters, cursor string) (domain.GraphNeighborhood, error) {
+	if depth < 1 {
+		depth = 1
+	}
+	if depth > 3 {
+		depth = 3
+	}
+	if limit <= 0 {
+		limit = 1000
+	}
+	if limit > 10000 {
+		limit = 10000
+	}
+	visited := map[string]struct{}{nodeID: {}}
+	frontier := []string{nodeID}
+	edges := make([]domain.Edge, 0, limit)
+	for d := 0; d < depth; d++ {
+		next := []string{}
+		for _, id := range frontier {
+			l, err := s.ListLinks(ctx, id, filters.Direction)
+			if err != nil {
+				return domain.GraphNeighborhood{}, err
+			}
+			for _, e := range l {
+				if len(filters.RelationTypes) > 0 {
+					ok := false
+					for _, r := range filters.RelationTypes {
+						if string(e.RelationType) == r {
+							ok = true
+							break
+						}
+					}
+					if !ok {
+						continue
+					}
+				}
+				edges = append(edges, e)
+				if _, ok := visited[e.FromID]; !ok {
+					visited[e.FromID] = struct{}{}
+					next = append(next, e.FromID)
+				}
+				if _, ok := visited[e.ToID]; !ok {
+					visited[e.ToID] = struct{}{}
+					next = append(next, e.ToID)
+				}
+				if len(edges) >= limit {
+					break
+				}
+			}
+			if len(edges) >= limit {
+				break
+			}
+		}
+		frontier = next
+		if len(edges) >= limit {
+			break
+		}
+	}
+	ids := make([]string, 0, len(visited))
+	for id := range visited {
+		ids = append(ids, id)
+	}
+	sort.Strings(ids)
+	nodes := make([]domain.Node, 0, len(ids))
+	for _, id := range ids {
+		n, err := s.GetFileByID(ctx, id)
+		if err != nil || n == nil {
+			continue
+		}
+		if len(filters.Extensions) > 0 {
+			ok := false
+			for _, ex := range filters.Extensions {
+				if strings.EqualFold(n.Ext, ex) {
+					ok = true
+					break
+				}
+			}
+			if !ok {
+				continue
+			}
+		}
+		nodes = append(nodes, *n)
+	}
+	tr := len(edges) >= limit
+	next := ""
+	if tr {
+		next = "more"
+	}
+	return domain.GraphNeighborhood{Nodes: nodes, Edges: edges[:min(len(edges), limit)], Truncated: tr, NextCursor: next}, nil
+}

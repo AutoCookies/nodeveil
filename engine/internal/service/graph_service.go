@@ -36,6 +36,12 @@ func (g *GraphService) GetNeighbors(ctx context.Context, nodeID string, _ int) (
 func (g *GraphService) GetGraphStats(ctx context.Context) (domain.GraphStats, error) {
 	return g.store.GraphStats(ctx)
 }
+func (g *GraphService) GetNeighborhood(ctx context.Context, nodeID string, depth, limit int, filters domain.GraphFilters, cursor string) (domain.GraphNeighborhood, error) {
+	return g.store.GraphNeighborhood(ctx, nodeID, depth, limit, filters, cursor)
+}
+func (g *GraphService) GetCounts(ctx context.Context, nodeID string) (domain.GraphCounts, error) {
+	return g.store.GraphCounts(ctx, nodeID)
+}
 func (g *GraphService) Events(ctx context.Context, limit int) ([]map[string]any, error) {
 	return g.store.RecentEvents(ctx, limit)
 }

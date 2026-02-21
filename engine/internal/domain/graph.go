@@ -51,3 +51,21 @@ type ImportReport struct {
 	Skipped    int `json:"skipped"`
 	Duplicates int `json:"duplicates"`
 }
+
+type GraphNeighborhood struct {
+	Nodes      []Node `json:"nodes"`
+	Edges      []Edge `json:"edges"`
+	Truncated  bool   `json:"truncated"`
+	NextCursor string `json:"next_cursor,omitempty"`
+}
+
+type GraphFilters struct {
+	RelationTypes []string  `json:"relation_types"`
+	Direction     Direction `json:"direction"`
+	Extensions    []string  `json:"extensions"`
+}
+
+type GraphCounts struct {
+	Out int64 `json:"out"`
+	In  int64 `json:"in"`
+}

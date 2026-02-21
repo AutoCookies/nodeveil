@@ -2,18 +2,11 @@
 
 Nodeveil is a filesystem-native hard-link knowledge graph desktop app.
 
-## Dev run
+## Dev
 
 ```bash
 cd engine && go run ./cmd/nodeveil-engine
 pnpm -C desktop build
-```
-
-## Graph CLI
-
-```bash
-cd engine && go run ./cmd/nodeveil-engine --graph-export graph.json
-cd engine && go run ./cmd/nodeveil-engine --graph-import graph.json
 ```
 
 ## Tests
@@ -22,7 +15,7 @@ cd engine && go run ./cmd/nodeveil-engine --graph-import graph.json
 pnpm -C desktop lint
 pnpm -C desktop typecheck
 pnpm -C desktop test
-pnpm -C desktop test:e2e
+RUN_E2E=1 pnpm -C desktop test:e2e
 cd engine && go test ./...
 cd engine && go test -race ./...
 cd engine && go vet ./...
@@ -34,12 +27,12 @@ cd engine && golangci-lint run ./...
 ```bash
 cd engine && go run ./cmd/nodeveil-bench
 pnpm -C desktop bench:perf
+pnpm -C desktop bench:graph
 ```
 
-## Phase 3 highlights
+## Phase 4 highlights
 
-- Three-pane UX (navigator/viewer/links)
-- Link create/remove + undo for linking actions
-- Backlinks/outgoing tabs and relation badges
-- Engine reconnect/degraded handling and diagnostics endpoints
-- E2E smoke + perf bench scripts
+- Dedicated Graph View with focus-node neighborhood loading
+- Worker-driven layout, WebGL-based render surface, pan/zoom/select/focus interactions
+- Graph filters (direction/depth/relation/ext) with capped neighborhood payloads
+- Graph perf bench + baseline JSON and graph e2e smoke

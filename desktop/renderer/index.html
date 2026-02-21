@@ -30,6 +30,18 @@ input,select,button{font:inherit}
     <h4>Linked From Here (OUT)</h4><ul id="out-links" class="list"></ul>
     <h4>Backlinks To Here (IN)</h4><ul id="in-links" class="list"></ul>
   </section>
+
+  <section class="pane" id="graph-pane">
+    <h3>Graph View</h3>
+    <div class="row"><button id="open-graph">Open in Graph</button><button id="graph-reset">Reset View</button></div>
+    <div class="row"><select id="graph-depth"><option value="1">Depth 1</option><option value="2">Depth 2</option><option value="3">Depth 3</option></select><select id="graph-direction"><option>BOTH</option><option>OUT</option><option>IN</option></select></div>
+    <div class="row"><input id="graph-rel" placeholder="relations csv" style="flex:1"/><input id="graph-ext" placeholder="ext csv" style="flex:1"/><button id="graph-apply">Apply</button></div>
+    <div id="graph-status" class="muted">Fetching neighborhood…</div>
+    <canvas id="graph-canvas" style="width:100%;height:360px;border:1px solid #ddd"></canvas>
+    <div id="graph-legend" class="muted"></div>
+    <div id="graph-partial" class="muted"></div>
+  </section>
+
 </div>
 <script type="module" src="../dist/renderer/src/main.js"></script>
 </body></html>

@@ -79,6 +79,7 @@ jobs:
           ENGINE_PID=$!
           sleep 2
           pnpm -C desktop bench:perf
+          pnpm -C desktop bench:graph
           kill $ENGINE_PID
 
   bench:
@@ -88,5 +89,5 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: engine/go.mod
-      - name: Run phase1 bench harness
+      - name: Run engine bench harness
         run: cd engine && go run ./cmd/nodeveil-bench

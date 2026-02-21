@@ -1,0 +1,6 @@
+{
+  "tti_ms": 3500,
+  "pan_avg_frame_ms": 16,
+  "pan_p95_frame_ms": 30,
+  "zoom_max_frame_ms": 50
+}

@@ -7,17 +7,26 @@ import { searchActions } from '../features/search/actions.js';
 import { runSearch } from '../features/search/controller.js';
 import { selectVisibleWindow } from '../features/search/selectors.js';
 import { requestJSON } from '../shared/ipc/client.js';
+import { initialGraphState, graphReducer } from '../features/graph/state.js';
+import { graphActions } from '../features/graph/actions.js';
+import { fetchNeighborhood, applyGraphFilters } from '../features/graph/controller.js';
+import { mountGraphCanvas } from '../features/graph/components/GraphCanvas.js';
+import { bindGraphToolbar } from '../features/graph/components/GraphToolbar.js';
+import { renderLegend } from '../features/graph/components/GraphLegend.js';
 
 let rootsState = initialRootsState();
 let searchState = initialSearchState();
 let linksState = initialLinksState();
 let selectedNodeId = '';
+let graphState = initialGraphState();
 
 const statusEl = document.getElementById('status') as HTMLElement;
 const errorsEl = document.getElementById('errors') as HTMLElement;
 const resultsEl = document.getElementById('results') as HTMLUListElement;
 const outEl = document.getElementById('out-links') as HTMLUListElement;
 const inEl = document.getElementById('in-links') as HTMLUListElement;
+const graphStatus = document.getElementById('graph-status') as HTMLElement;
+const graphPartial = document.getElementById('graph-partial') as HTMLElement;
 
 function renderSearch(): void {
   resultsEl.innerHTML = '';
@@ -130,5 +139,45 @@ document.addEventListener('keydown', (ev) => {
   }
 });
 
+let last = performance.now();
+function frame() {
+  const now = performance.now();
+  graphState = graphReducer(graphState, graphActions.renderSample(now - last));
+  last = now;
+  graphCanvas.render();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
 setInterval(() => { void refreshStatus(); }, 1200);
 void refreshStatus();
+
+
+const graphCanvas = mountGraphCanvas(() => graphState, async (id) => {
+  graphState = graphReducer(graphState, graphActions.setSelection(id));
+  selectedNodeId = id;
+  (document.getElementById('from-id') as HTMLInputElement).value = id;
+  await refreshLinks(id);
+  await loadViewer(id);
+}, async (id) => {
+  graphState = graphReducer(graphState, graphActions.setFocus(id));
+  await fetchNeighborhood(graphState, (a) => { graphState = graphReducer(graphState, a); }, id);
+});
+
+bindGraphToolbar((filters) => {
+  applyGraphFilters((a) => { graphState = graphReducer(graphState, a); }, filters);
+  if (graphState.viewport.focusedId) void fetchNeighborhood(graphState, (a) => { graphState = graphReducer(graphState, a); }, graphState.viewport.focusedId);
+}, () => {
+  graphState = graphReducer(graphState, graphActions.setViewport(1, 0, 0));
+  graphCanvas.setViewport(1, 0, 0);
+});
+renderLegend();
+
+(document.getElementById('open-graph') as HTMLButtonElement).onclick = async () => {
+  const id = selectedNodeId || (document.getElementById('from-id') as HTMLInputElement).value;
+  if (!id) return;
+  graphState = graphReducer(graphState, graphActions.setFocus(id));
+  graphStatus.textContent = 'Fetching neighborhood…';
+  await fetchNeighborhood(graphState, (a) => { graphState = graphReducer(graphState, a); }, id);
+  graphStatus.textContent = graphState.loading.error ? graphState.loading.error : `nodes=${graphState.dataset.nodes.length} edges=${graphState.dataset.edges.length} layout=${graphState.layout.durationMs}ms`;
+  graphPartial.textContent = graphState.dataset.truncated ? 'Partial graph loaded. Adjust filters or depth.' : '';
+};
