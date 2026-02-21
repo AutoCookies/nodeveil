@@ -16,7 +16,7 @@ export async function fetchNeighborhood(state: GraphState, dispatch: (a: GraphAc
     const data = await requestJSON<{ nodes: any[]; edges: any[]; truncated: boolean; next_cursor: string }>(`/graph/neighborhood?${params.toString()}`, { signal: activeAbort.signal, retry: { retries: 1, backoffMs: 100 } });
     layout.run(data.nodes.map((n) => ({ id: n.id, label: n.relPath ?? n.absPath, x: 0, y: 0, ext: n.ext ?? '', sizeBytes: n.sizeBytes ?? 0 })), data.edges, (res) => {
       dispatch(graphActions.layoutTick(res.iterations, res.durationMs));
-      dispatch(graphActions.loadSuccess(res.nodes, res.edges, data.truncated, data.next_cursor));
+      dispatch(graphActions.loadSuccess(res.nodes, res.edges, data.truncated, data.next_cursor ?? ""));
     });
   } catch (error) {
     dispatch(graphActions.loadError((error as Error).message));

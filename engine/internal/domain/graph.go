@@ -53,10 +53,10 @@ type ImportReport struct {
 }
 
 type GraphNeighborhood struct {
-	Nodes      []Node `json:"nodes"`
-	Edges      []Edge `json:"edges"`
-	Truncated  bool   `json:"truncated"`
-	NextCursor string `json:"next_cursor,omitempty"`
+	Nodes      []Node  `json:"nodes"`
+	Edges      []Edge  `json:"edges"`
+	Truncated  bool    `json:"truncated"`
+	NextCursor *string `json:"next_cursor"`
 }
 
 type GraphFilters struct {

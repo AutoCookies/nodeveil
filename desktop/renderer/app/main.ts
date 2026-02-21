@@ -172,6 +172,15 @@ bindGraphToolbar((filters) => {
 });
 renderLegend();
 
+(document.getElementById('graph-load-more') as HTMLButtonElement).onclick = async () => {
+  if (!graphState.viewport.focusedId) return;
+  await fetchNeighborhood(graphState, (a) => { graphState = graphReducer(graphState, a); }, graphState.viewport.focusedId);
+  graphPartial.textContent = graphState.dataset.truncated ? 'Partial graph loaded.' : '';
+};
+(document.getElementById('graph-narrow') as HTMLButtonElement).onclick = () => {
+  (document.getElementById('graph-depth') as HTMLSelectElement).focus();
+};
+
 (document.getElementById('open-graph') as HTMLButtonElement).onclick = async () => {
   const id = selectedNodeId || (document.getElementById('from-id') as HTMLInputElement).value;
   if (!id) return;

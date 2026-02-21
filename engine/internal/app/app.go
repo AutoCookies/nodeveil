@@ -29,7 +29,8 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 		return nil, err
 	}
 	graph := service.NewGraphService(st)
-	return &App{store: st, index: idx, server: ipc.New(cfg.HTTPAddr, idx, graph)}, nil
+	graphQuery := service.NewGraphQueryService(st)
+	return &App{store: st, index: idx, server: ipc.New(cfg.HTTPAddr, idx, graph, graphQuery)}, nil
 }
 func (a *App) Run() error   { return a.server.Start() }
 func (a *App) Close() error { a.index.Stop(); return a.store.Close() }
