@@ -1,10 +1,15 @@
 <!doctype html><html><head><meta charset="UTF-8"/><title>Nodeveil</title>
-<style>body{font-family:system-ui;margin:0;padding:16px}.row{display:flex;gap:8px}.panel{border:1px solid #ddd;padding:12px;margin-top:12px}.list{max-height:240px;overflow:auto}</style></head>
+<style>body{font-family:system-ui;margin:0;padding:16px}.row{display:flex;gap:8px}.panel{border:1px solid #ddd;padding:12px;margin-top:12px}.list{max-height:200px;overflow:auto}button{cursor:pointer}</style></head>
 <body>
-<h1>Nodeveil Phase 1</h1>
+<h1>Nodeveil Phase 2</h1>
 <div class="row"><input id="root-input" placeholder="/path/to/root" style="flex:1"/><button id="add-root">Add Root</button></div>
 <div class="panel"><strong>Index Status</strong><div id="status">loading…</div><div id="errors"></div></div>
-<div class="panel"><strong>Roots</strong><ul id="roots" class="list"></ul></div>
 <div class="panel"><strong>Search</strong><div class="row"><input id="search-input" placeholder="search path" style="flex:1"/><button id="search-btn">Search</button></div><ul id="results" class="list"></ul></div>
+<div class="panel"><strong>Links</strong>
+  <div class="row"><input id="from-id" placeholder="from node id" style="flex:1"/><input id="to-id" placeholder="to node id" style="flex:1"/><select id="relation"><option>related</option><option>ref</option><option>evidence</option><option>depends_on</option></select><button id="link-btn">Link</button></div>
+  <div id="link-error" style="color:#a00"></div>
+  <h4>Outgoing</h4><ul id="out-links" class="list"></ul>
+  <h4>Incoming</h4><ul id="in-links" class="list"></ul>
+</div>
 <script type="module" src="./src/main.js"></script>
 </body></html>

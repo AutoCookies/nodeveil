@@ -1,41 +1,33 @@
-# Nodeveil Architecture (Phase 1)
-
-## System Overview
+# Nodeveil Architecture (Phase 2)
 
 ```mermaid
 flowchart LR
-  UI[Desktop Renderer] --> MAIN[Electron Main]
-  MAIN --> IPC[Engine HTTP IPC (proto-aligned)]
-  IPC --> SVC[IndexService]
-  SVC --> IDX[Scanner + Poll Watcher + Reconciler]
-  SVC --> STO[Store Repositories]
-  STO --> DB[(SQLite WAL)]
+  UI[Renderer] --> IPC[Engine IPC HTTP]
+  IPC --> INDEX[IndexService]
+  IPC --> GRAPH[GraphService]
+  INDEX --> STORE[Store Layer SQL]
+  GRAPH --> STORE
+  STORE --> DB[(SQLite WAL)]
 ```
 
-## Package Responsibilities
+## Responsibilities
 
-- `internal/domain`: `Root`, `Node`, `IndexEvent`, `IndexStatus`.
-- `internal/ignore`: ignore matcher (glob + prefix).
-- `internal/indexer`: recursive scanner + watcher abstractions.
-- `internal/store`: schema/migrations/repos and all SQL.
-- `internal/service`: orchestration, queues, event application, status counters.
-- `internal/ipc`: API handlers for roots, status, search, version, health.
+- `internal/domain`: index + graph domain models.
+- `internal/indexer`: scan/watch/reconcile event sources.
+- `internal/store`: all SQL for nodes/edges/roots/events.
+- `internal/service/index_service.go`: indexing orchestration.
+- `internal/service/graph_service.go`: graph invariants, export/import.
+- `internal/ipc`: request handlers for indexing + graph APIs.
 
-## Data ownership
+## Invariants
 
-Engine is authoritative for roots and node metadata. Desktop only renders engine responses.
+- No self-loop edges.
+- No duplicate live edge for same `(from,to,relation_type)`.
+- Edges refer to existing live nodes.
+- Node soft-delete cascades edge soft-delete.
 
-## Contract operations
+## Not in Phase 2
 
-Defined in `proto/nodeveil/v1/nodeveil.proto`:
-
-- Roots: `AddRoot`, `RemoveRoot`, `ListRoots`
-- Indexing: `GetIndexStatus`
-- Querying: `SearchFiles`, `GetFileById`, `ListRecentChanges`
-- Health: `GetVersion`, `HealthCheck`
-
-## Not in Phase 1
-
-- File content hashing by default
-- OCR/PDF parsing
-- Cloud sync / AI augmentation
+- Full graph rendering
+- AI inference
+- Cloud sync

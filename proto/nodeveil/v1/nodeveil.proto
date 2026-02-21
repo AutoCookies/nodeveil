@@ -12,23 +12,31 @@ service NodeveilService {
   rpc SearchFiles(SearchFilesRequest) returns (SearchFilesResponse);
   rpc GetFileById(GetFileByIdRequest) returns (GetFileByIdResponse);
   rpc ListRecentChanges(ListRecentChangesRequest) returns (ListRecentChangesResponse);
+  rpc CreateLink(CreateLinkRequest) returns (CreateLinkResponse);
+  rpc RemoveLinkByNodes(RemoveLinkByNodesRequest) returns (RemoveLinkResponse);
+  rpc ListLinks(ListLinksRequest) returns (ListLinksResponse);
+  rpc GetBacklinks(GetBacklinksRequest) returns (ListLinksResponse);
+  rpc GetNeighbors(GetNeighborsRequest) returns (ListLinksResponse);
+  rpc GetGraphStats(GetGraphStatsRequest) returns (GetGraphStatsResponse);
 }
-message GetVersionRequest {}
-message GetVersionResponse { string version=1; string commit=2; string build_time=3; }
-message HealthCheckRequest {}
-message HealthCheckResponse { string status=1; }
-message ListRootsRequest {}
-message ListRootsResponse { repeated string roots=1; }
-message AddRootRequest { string path=1; }
-message AddRootResponse { bool ok=1; }
-message RemoveRootRequest { string path=1; }
-message RemoveRootResponse { bool ok=1; }
-message GetIndexStatusRequest {}
-message GetIndexStatusResponse { double progress_percent=1; string current_root=2; int64 files_indexed=3; int64 queue_depth=4; int64 errors=5; int64 scanned_files_total=6; int64 watch_events_total=7; int64 db_upserts_total=8; int64 last_scan_unix=9; }
+message GetVersionRequest {} ; message GetVersionResponse { string version=1; string commit=2; string build_time=3; }
+message HealthCheckRequest {} ; message HealthCheckResponse { string status=1; }
+message ListRootsRequest {} ; message ListRootsResponse { repeated string roots=1; }
+message AddRootRequest { string path=1; } ; message AddRootResponse { bool ok=1; }
+message RemoveRootRequest { string path=1; } ; message RemoveRootResponse { bool ok=1; }
+message GetIndexStatusRequest {} ; message GetIndexStatusResponse { double progress_percent=1; string current_root=2; int64 files_indexed=3; int64 queue_depth=4; int64 errors=5; int64 scanned_files_total=6; int64 watch_events_total=7; int64 db_upserts_total=8; int64 last_scan_unix=9; }
 message SearchFilesRequest { string query=1; string ext=2; int64 root_id=3; string kind=4; }
 message Node { string id=1; int64 root_id=2; string abs_path=3; string rel_path=4; string kind=5; string ext=6; int64 size_bytes=7; int64 mtime_unix=8; }
 message SearchFilesResponse { repeated Node results=1; }
-message GetFileByIdRequest { string node_id=1; }
-message GetFileByIdResponse { Node node=1; }
-message ListRecentChangesRequest { int64 since=1; }
-message ListRecentChangesResponse { repeated Node results=1; }
+message GetFileByIdRequest { string node_id=1; } ; message GetFileByIdResponse { Node node=1; }
+message ListRecentChangesRequest { int64 since=1; } ; message ListRecentChangesResponse { repeated Node results=1; }
+message CreateLinkRequest { string from_node_id=1; string to_node_id=2; string relation_type=3; string note=4; }
+message CreateLinkResponse { bool ok=1; }
+message RemoveLinkByNodesRequest { string from_node_id=1; string to_node_id=2; string relation_type=3; }
+message RemoveLinkResponse { bool ok=1; }
+message Edge { string id=1; string from_node_id=2; string to_node_id=3; string relation_type=4; string note=5; int64 created_at=6; int64 updated_at=7; }
+message ListLinksRequest { string node_id=1; string direction=2; }
+message GetBacklinksRequest { string node_id=1; }
+message GetNeighborsRequest { string node_id=1; int32 depth=2; }
+message ListLinksResponse { repeated Edge edges=1; }
+message GetGraphStatsRequest {} ; message GetGraphStatsResponse { int64 linked_nodes=1; int64 edges=2; }

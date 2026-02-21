@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "tsc -p tsconfig.json --noEmit",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --test test/state.test.mjs",
+    "test": "node --test test/*.test.mjs",
     "format": "prettier --write .",
     "build": "tsc -p tsconfig.json"
   },

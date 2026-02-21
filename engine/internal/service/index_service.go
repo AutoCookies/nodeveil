@@ -51,6 +51,12 @@ func (s *IndexService) applyEvent(ev domain.IndexEvent) {
 			return
 		}
 		atomic.AddInt64(&s.status.DBUpserts, 1)
+	case domain.EventMove:
+		if err := s.store.MoveNodePath(ctx, ev.RootID, ev.OldPath, ev.Path); err != nil {
+			atomic.AddInt64(&s.status.Errors, 1)
+			return
+		}
+		atomic.AddInt64(&s.status.DBUpserts, 1)
 	case domain.EventUpsert:
 		n := ev.Node
 		if n == nil {

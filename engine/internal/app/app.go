@@ -24,13 +24,12 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open store: %w", err)
 	}
-	sc := indexer.FSScanner{Matcher: ignore.New(nil)}
-	wa := indexer.PollWatcher{Interval: 2 * time.Second}
-	idx := service.NewIndexService(st, sc, wa)
+	idx := service.NewIndexService(st, indexer.FSScanner{Matcher: ignore.New(nil)}, indexer.PollWatcher{Interval: 2 * time.Second})
 	if err := idx.Start(ctx); err != nil {
 		return nil, err
 	}
-	return &App{store: st, index: idx, server: ipc.New(cfg.HTTPAddr, idx)}, nil
+	graph := service.NewGraphService(st)
+	return &App{store: st, index: idx, server: ipc.New(cfg.HTTPAddr, idx, graph)}, nil
 }
 func (a *App) Run() error   { return a.server.Start() }
 func (a *App) Close() error { a.index.Stop(); return a.store.Close() }
