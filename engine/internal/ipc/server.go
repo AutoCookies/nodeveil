@@ -28,6 +28,9 @@ func New(addr string, indexSvc *service.IndexService, graphSvc *service.GraphSer
 	mux.HandleFunc("/graph/backlinks", s.backlinks)
 	mux.HandleFunc("/graph/neighbors", s.neighbors)
 	mux.HandleFunc("/graph/stats", s.stats)
+	mux.HandleFunc("/node/meta", s.nodeMeta)
+	mux.HandleFunc("/diagnostics/events", s.events)
+	mux.HandleFunc("/open", s.openPath)
 	s.httpServer = &http.Server{Addr: addr, Handler: mux}
 	return s
 }
@@ -151,4 +154,25 @@ func writeJSON(w http.ResponseWriter, code int, v any) {
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(v)
+}
+
+func (s *Server) nodeMeta(w http.ResponseWriter, r *http.Request) {
+	n, err := s.indexSvc.GetFileByID(r.Context(), r.URL.Query().Get("id"))
+	if err != nil || n == nil {
+		writeJSON(w, 404, map[string]string{"error": "node not found"})
+		return
+	}
+	writeJSON(w, 200, map[string]any{"node": n})
+}
+func (s *Server) events(w http.ResponseWriter, r *http.Request) {
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	ev, err := s.graphSvc.Events(r.Context(), limit)
+	if err != nil {
+		writeJSON(w, 500, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, map[string]any{"events": ev})
+}
+func (s *Server) openPath(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, 200, map[string]bool{"ok": true})
 }

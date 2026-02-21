@@ -36,6 +36,9 @@ func (g *GraphService) GetNeighbors(ctx context.Context, nodeID string, _ int) (
 func (g *GraphService) GetGraphStats(ctx context.Context) (domain.GraphStats, error) {
 	return g.store.GraphStats(ctx)
 }
+func (g *GraphService) Events(ctx context.Context, limit int) ([]map[string]any, error) {
+	return g.store.RecentEvents(ctx, limit)
+}
 func (g *GraphService) ExportGraph(ctx context.Context, outFile string) error {
 	exp, err := g.store.ExportGraph(ctx)
 	if err != nil {

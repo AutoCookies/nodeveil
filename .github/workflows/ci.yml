@@ -63,6 +63,24 @@ jobs:
       - name: Build desktop
         run: pnpm -C desktop build
 
+      - name: Desktop e2e smoke (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd engine && go run ./cmd/nodeveil-engine &
+          ENGINE_PID=$!
+          sleep 2
+          RUN_E2E=1 pnpm -C desktop test:e2e
+          kill $ENGINE_PID
+
+      - name: Desktop perf bench (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd engine && go run ./cmd/nodeveil-engine &
+          ENGINE_PID=$!
+          sleep 2
+          pnpm -C desktop bench:perf
+          kill $ENGINE_PID
+
   bench:
     runs-on: ubuntu-latest
     steps:

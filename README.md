@@ -2,50 +2,44 @@
 
 Nodeveil is a filesystem-native hard-link knowledge graph desktop app.
 
-## Getting started
-
-```bash
-cd engine && go mod download
-pnpm -C desktop install
-```
-
-## Run engine + desktop
+## Dev run
 
 ```bash
 cd engine && go run ./cmd/nodeveil-engine
-# another terminal
 pnpm -C desktop build
 ```
 
-## Graph export/import CLI
+## Graph CLI
 
 ```bash
 cd engine && go run ./cmd/nodeveil-engine --graph-export graph.json
 cd engine && go run ./cmd/nodeveil-engine --graph-import graph.json
 ```
 
-## Quality gates
+## Tests
 
 ```bash
 pnpm -C desktop lint
 pnpm -C desktop typecheck
 pnpm -C desktop test
+pnpm -C desktop test:e2e
 cd engine && go test ./...
 cd engine && go test -race ./...
 cd engine && go vet ./...
 cd engine && golangci-lint run ./...
-cd engine && go run ./cmd/nodeveil-bench
 ```
 
-## Example usage
+## Benches
 
-1. Add two roots in desktop.
-2. Search and copy two node IDs.
-3. Create link from A to B in Links panel.
-4. View outgoing/incoming backlinks.
+```bash
+cd engine && go run ./cmd/nodeveil-bench
+pnpm -C desktop bench:perf
+```
 
-## License summary
+## Phase 3 highlights
 
-- Non-commercial use for official binaries
-- Distributed modifications must publish full source under same terms
-- No trademark grant for Nodeveil name/logo
+- Three-pane UX (navigator/viewer/links)
+- Link create/remove + undo for linking actions
+- Backlinks/outgoing tabs and relation badges
+- Engine reconnect/degraded handling and diagnostics endpoints
+- E2E smoke + perf bench scripts

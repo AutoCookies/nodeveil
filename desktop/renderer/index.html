@@ -1,15 +1,35 @@
-<!doctype html><html><head><meta charset="UTF-8"/><title>Nodeveil</title>
-<style>body{font-family:system-ui;margin:0;padding:16px}.row{display:flex;gap:8px}.panel{border:1px solid #ddd;padding:12px;margin-top:12px}.list{max-height:200px;overflow:auto}button{cursor:pointer}</style></head>
+<!doctype html>
+<html><head><meta charset="UTF-8"/><title>Nodeveil</title>
+<style>
+body{font-family:system-ui;margin:0}.shell{display:grid;grid-template-columns:1.2fr 1.5fr 1.3fr;height:100vh}
+.pane{border-right:1px solid #ddd;padding:12px;overflow:auto}.pane:last-child{border-right:0}
+.row{display:flex;gap:8px;margin-bottom:8px}.list{max-height:55vh;overflow:auto} .muted{color:#666;font-size:12px}
+input,select,button{font:inherit}
+</style></head>
 <body>
-<h1>Nodeveil Phase 2</h1>
-<div class="row"><input id="root-input" placeholder="/path/to/root" style="flex:1"/><button id="add-root">Add Root</button></div>
-<div class="panel"><strong>Index Status</strong><div id="status">loading…</div><div id="errors"></div></div>
-<div class="panel"><strong>Search</strong><div class="row"><input id="search-input" placeholder="search path" style="flex:1"/><button id="search-btn">Search</button></div><ul id="results" class="list"></ul></div>
-<div class="panel"><strong>Links</strong>
-  <div class="row"><input id="from-id" placeholder="from node id" style="flex:1"/><input id="to-id" placeholder="to node id" style="flex:1"/><select id="relation"><option>related</option><option>ref</option><option>evidence</option><option>depends_on</option></select><button id="link-btn">Link</button></div>
-  <div id="link-error" style="color:#a00"></div>
-  <h4>Outgoing</h4><ul id="out-links" class="list"></ul>
-  <h4>Incoming</h4><ul id="in-links" class="list"></ul>
+<div class="shell">
+  <section class="pane">
+    <h3>Navigator</h3>
+    <div class="row"><input id="root-input" placeholder="/path/to/root" style="flex:1"/><button id="add-root">Add Root</button></div>
+    <div class="row"><input id="search-input" placeholder="Search (Ctrl/Cmd+K)" style="flex:1"/><button id="search-btn">Search</button></div>
+    <ul id="results" class="list"></ul>
+  </section>
+  <section class="pane">
+    <h3>Viewer</h3>
+    <div id="viewer-meta" class="muted">Select a file to view metadata.</div>
+    <div class="row"><button id="copy-path">Copy Path</button><button id="open-os">Open in OS</button></div>
+    <h4>Status</h4>
+    <div id="status">loading…</div>
+    <div id="errors" class="muted"></div>
+  </section>
+  <section class="pane" id="links-panel">
+    <h3>Links</h3>
+    <div class="row"><input id="from-id" placeholder="from node id" style="flex:1"/><input id="to-id" placeholder="to node id" style="flex:1"/></div>
+    <div class="row"><select id="relation"><option>related</option><option>ref</option><option>evidence</option><option>depends_on</option></select><button id="link-btn">Link (Ctrl/Cmd+L)</button><button id="undo-link">Undo</button></div>
+    <div id="link-error" class="muted" style="color:#a00"></div>
+    <h4>Linked From Here (OUT)</h4><ul id="out-links" class="list"></ul>
+    <h4>Backlinks To Here (IN)</h4><ul id="in-links" class="list"></ul>
+  </section>
 </div>
-<script type="module" src="./src/main.js"></script>
+<script type="module" src="../dist/renderer/src/main.js"></script>
 </body></html>

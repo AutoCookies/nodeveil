@@ -1,33 +1,40 @@
-# Nodeveil Architecture (Phase 2)
+# Nodeveil Architecture (Phase 3)
 
 ```mermaid
 flowchart LR
-  UI[Renderer] --> IPC[Engine IPC HTTP]
-  IPC --> INDEX[IndexService]
-  IPC --> GRAPH[GraphService]
-  INDEX --> STORE[Store Layer SQL]
+  APP[Renderer App Shell] --> ROOTS[roots feature]
+  APP --> SEARCH[search feature]
+  APP --> NAV[navigator feature]
+  APP --> VIEWER[viewer feature]
+  APP --> LINKS[links feature]
+  APP --> DIAG[diagnostics feature]
+  ROOTS --> IPC[typed ipc client]
+  SEARCH --> IPC
+  VIEWER --> IPC
+  LINKS --> IPC
+  DIAG --> IPC
+  IPC --> ENGINE[engine ipc server]
+  ENGINE --> INDEX[IndexService]
+  ENGINE --> GRAPH[GraphService]
+  INDEX --> STORE
   GRAPH --> STORE
-  STORE --> DB[(SQLite WAL)]
+  STORE[(SQLite WAL)]
 ```
 
-## Responsibilities
+## Frontend boundaries
 
-- `internal/domain`: index + graph domain models.
-- `internal/indexer`: scan/watch/reconcile event sources.
-- `internal/store`: all SQL for nodes/edges/roots/events.
-- `internal/service/index_service.go`: indexing orchestration.
-- `internal/service/graph_service.go`: graph invariants, export/import.
-- `internal/ipc`: request handlers for indexing + graph APIs.
+- `features/*` are isolated by concern (no feature-to-feature imports).
+- each feature has explicit state transitions (`state.ts`, `actions.ts`, `selectors.ts`, `controller.ts` as needed).
+- `shared/ipc` owns retries/timeouts/cancellation.
 
-## Invariants
+## Backend boundaries
 
-- No self-loop edges.
-- No duplicate live edge for same `(from,to,relation_type)`.
-- Edges refer to existing live nodes.
-- Node soft-delete cascades edge soft-delete.
+- `internal/service/index_service.go` for indexing lifecycle.
+- `internal/service/graph_service.go` for link semantics.
+- `internal/store/*` contains all SQL.
 
-## Not in Phase 2
+## Stability goals
 
-- Full graph rendering
-- AI inference
-- Cloud sync
+- resilient reconnect behavior when engine is down.
+- paged/virtualized rendering in navigator/search paths.
+- diagnostics via `events_log` read model.

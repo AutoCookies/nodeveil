@@ -18,6 +18,8 @@ service NodeveilService {
   rpc GetBacklinks(GetBacklinksRequest) returns (ListLinksResponse);
   rpc GetNeighbors(GetNeighborsRequest) returns (ListLinksResponse);
   rpc GetGraphStats(GetGraphStatsRequest) returns (GetGraphStatsResponse);
+  rpc GetNodeMeta(GetNodeMetaRequest) returns (GetNodeMetaResponse);
+  rpc ListRecentEvents(ListRecentEventsRequest) returns (ListRecentEventsResponse);
 }
 message GetVersionRequest {} ; message GetVersionResponse { string version=1; string commit=2; string build_time=3; }
 message HealthCheckRequest {} ; message HealthCheckResponse { string status=1; }
@@ -40,3 +42,9 @@ message GetBacklinksRequest { string node_id=1; }
 message GetNeighborsRequest { string node_id=1; int32 depth=2; }
 message ListLinksResponse { repeated Edge edges=1; }
 message GetGraphStatsRequest {} ; message GetGraphStatsResponse { int64 linked_nodes=1; int64 edges=2; }
+
+message GetNodeMetaRequest { string node_id=1; }
+message GetNodeMetaResponse { Node node=1; }
+message ListRecentEventsRequest { int32 limit=1; }
+message Event { int64 ts=1; string type=2; string abs_path=3; string detail_json=4; }
+message ListRecentEventsResponse { repeated Event events=1; }

@@ -414,3 +414,27 @@ func DecodeExport(raw []byte) (domain.GraphExport, error) {
 	err := json.Unmarshal(raw, &e)
 	return e, err
 }
+
+func (s *Store) NodeMeta(ctx context.Context, id string) (*domain.Node, error) {
+	return s.GetFileByID(ctx, id)
+}
+
+func (s *Store) RecentEvents(ctx context.Context, limit int) ([]map[string]any, error) {
+	if limit <= 0 {
+		limit = 200
+	}
+	out, err := s.exec(ctx, fmt.Sprintf("SELECT ts||'|'||type||'|'||ifnull(abs_path,'')||'|'||ifnull(detail_json,'') FROM events_log ORDER BY id DESC LIMIT %d;", limit))
+	if err != nil {
+		return nil, err
+	}
+	rows := []map[string]any{}
+	for _, ln := range strings.Split(strings.TrimSpace(out), "\n") {
+		if ln == "" {
+			continue
+		}
+		p := strings.SplitN(ln, "|", 4)
+		ts, _ := strconv.ParseInt(p[0], 10, 64)
+		rows = append(rows, map[string]any{"ts": ts, "type": p[1], "abs_path": p[2], "detail_json": p[3]})
+	}
+	return rows, nil
+}
