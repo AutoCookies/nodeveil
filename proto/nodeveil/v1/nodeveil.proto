@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package nodeveil.v1;
+
+option go_package = "github.com/nodeveil/nodeveil/proto/nodeveil/v1;nodeveilv1";
+
+service NodeveilService {
+  rpc GetVersion(GetVersionRequest) returns (GetVersionResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc ListRoots(ListRootsRequest) returns (ListRootsResponse);
+}
+
+message GetVersionRequest {}
+
+message GetVersionResponse {
+  string version = 1;
+  string commit = 2;
+  string build_time = 3;
+}
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;
+}
+
+message ListRootsRequest {}
+
+message ListRootsResponse {
+  repeated string roots = 1;
+}
