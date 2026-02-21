@@ -10,7 +10,7 @@ type Config struct {
 func Load() Config {
 	return Config{
 		HTTPAddr: getenv("NODEVEIL_HTTP_ADDR", "127.0.0.1:8080"),
-		DBPath:   getenv("NODEVEIL_DB_PATH", "nodeveil.db"),
+		DBPath:   getenv("NODEVEIL_DB_PATH", DefaultDBPath()),
 	}
 }
 

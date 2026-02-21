@@ -80,6 +80,7 @@ jobs:
           sleep 2
           pnpm -C desktop bench:perf
           pnpm -C desktop bench:graph
+          pnpm -C desktop bench:theme
           kill $ENGINE_PID
 
   bench:

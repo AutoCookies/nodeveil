@@ -3,8 +3,11 @@ package ipc
 import (
 	"encoding/json"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
+	"github.com/nodeveil/nodeveil/engine/internal/config"
 	"github.com/nodeveil/nodeveil/engine/internal/domain"
 	"github.com/nodeveil/nodeveil/engine/internal/service"
 	"github.com/nodeveil/nodeveil/engine/internal/version"
@@ -34,6 +37,8 @@ func New(addr string, indexSvc *service.IndexService, graphSvc *service.GraphSer
 	mux.HandleFunc("/node/meta", s.nodeMeta)
 	mux.HandleFunc("/diagnostics/events", s.events)
 	mux.HandleFunc("/open", s.openPath)
+	mux.HandleFunc("/config/info", s.configInfo)
+	mux.HandleFunc("/backup", s.backup)
 	s.httpServer = &http.Server{Addr: addr, Handler: mux}
 	return s
 }
@@ -178,4 +183,24 @@ func (s *Server) events(w http.ResponseWriter, r *http.Request) {
 }
 func (s *Server) openPath(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]bool{"ok": true})
+}
+
+func (s *Server) configInfo(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, 200, map[string]string{"configPath": config.ConfigDir(), "dbPath": config.DefaultDBPath()})
+}
+func (s *Server) backup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	out := filepath.Join(config.ConfigDir(), "backup-graph.json")
+	if err := os.MkdirAll(config.ConfigDir(), 0o755); err != nil {
+		writeJSON(w, 500, map[string]string{"error": err.Error()})
+		return
+	}
+	if err := s.graphSvc.ExportGraph(r.Context(), out); err != nil {
+		writeJSON(w, 500, map[string]string{"error": err.Error()})
+		return
+	}
+	writeJSON(w, 200, map[string]string{"backup": out})
 }

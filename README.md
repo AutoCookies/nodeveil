@@ -2,15 +2,33 @@
 
 Nodeveil is a filesystem-native hard-link knowledge graph desktop app.
 
-## Dev
+## Key features
+- Local-first indexing and graph linking
+- Backlinks/outgoing links and neighborhood graph view
+- Runtime themes: Light, Dark, Neon, Sakura
+- Graph export/import + backup
 
+## Install / run (dev)
 ```bash
 cd engine && go run ./cmd/nodeveil-engine
 pnpm -C desktop build
 ```
 
-## Tests
+## Building from source
+```bash
+./scripts/build-engine.sh
+./scripts/build-desktop.sh
+# Windows: scripts/build-engine.ps1 and scripts/build-desktop.ps1
+```
 
+## Packaging commands
+```bash
+pnpm -C desktop package:linux
+pnpm -C desktop package:win
+pnpm -C desktop package:mac
+```
+
+## Tests
 ```bash
 pnpm -C desktop lint
 pnpm -C desktop typecheck
@@ -22,17 +40,15 @@ cd engine && go vet ./...
 cd engine && golangci-lint run ./...
 ```
 
-## Benches
-
+## Benchmarks
 ```bash
 cd engine && go run ./cmd/nodeveil-bench
 pnpm -C desktop bench:perf
 pnpm -C desktop bench:graph
+pnpm -C desktop bench:theme
 ```
 
-## Phase 4 highlights
-
-- Dedicated Graph View with focus-node neighborhood loading
-- Worker-driven layout, WebGL-based render surface, pan/zoom/select/focus interactions
-- Graph filters (direction/depth/relation/ext) with capped neighborhood payloads
-- Graph perf bench + baseline JSON and graph e2e smoke
+## License summary
+- Official binaries: non-commercial use only.
+- Distributed modifications must publish full source under same license.
+- Nodeveil trademarks are not granted.

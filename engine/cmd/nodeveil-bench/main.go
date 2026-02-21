@@ -76,8 +76,12 @@ func main() {
 		lat = append(lat, float64(time.Since(ts).Microseconds())/1000.0)
 	}
 	sort.Float64s(lat)
-	p50 := lat[len(lat)/2]
-	p95 := lat[(len(lat)*95)/100]
+	p50 := 0.0
+	p95 := 0.0
+	if len(lat) > 0 {
+		p50 = lat[len(lat)/2]
+		p95 = lat[(len(lat)*95)/100]
+	}
 	fi, _ := os.Stat(filepath.Join(tmp, "bench.db"))
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)

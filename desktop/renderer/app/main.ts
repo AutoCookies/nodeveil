@@ -13,12 +13,14 @@ import { fetchNeighborhood, applyGraphFilters } from '../features/graph/controll
 import { mountGraphCanvas } from '../features/graph/components/GraphCanvas.js';
 import { bindGraphToolbar } from '../features/graph/components/GraphToolbar.js';
 import { renderLegend } from '../features/graph/components/GraphLegend.js';
+import { applyTheme, initTheme } from '../shared/theme/ThemeProvider.js';
 
 let rootsState = initialRootsState();
 let searchState = initialSearchState();
 let linksState = initialLinksState();
 let selectedNodeId = '';
 let graphState = initialGraphState();
+let engineConnected = true;
 
 const statusEl = document.getElementById('status') as HTMLElement;
 const errorsEl = document.getElementById('errors') as HTMLElement;
@@ -27,6 +29,8 @@ const outEl = document.getElementById('out-links') as HTMLUListElement;
 const inEl = document.getElementById('in-links') as HTMLUListElement;
 const graphStatus = document.getElementById('graph-status') as HTMLElement;
 const graphPartial = document.getElementById('graph-partial') as HTMLElement;
+const configPathEl = document.getElementById('config-path') as HTMLElement | null;
+const dbPathEl = document.getElementById('db-path') as HTMLElement | null;
 
 function renderSearch(): void {
   resultsEl.innerHTML = '';
@@ -88,6 +92,7 @@ async function refreshStatus(): Promise<void> {
     statusEl.textContent = `files=${s.filesIndexed} queue=${s.queueDepth} progress=${s.progressPercent}%`;
     errorsEl.textContent = `errors=${s.errors} lastScan=${s.lastScanUnix}`;
   } catch {
+    engineConnected = false;
     statusEl.textContent = 'engine disconnected (read-only)';
   }
 }
@@ -122,6 +127,14 @@ async function refreshStatus(): Promise<void> {
   const path = ((document.getElementById('viewer-meta') as HTMLElement).textContent ?? '').split(' | ')[0] ?? '';
   await requestJSON('/open?path=' + encodeURIComponent(path));
 };
+(document.getElementById('backup-btn') as HTMLButtonElement).onclick = async () => {
+  const res = await requestJSON<{backup:string}>('/backup', { method: 'POST' });
+  errorsEl.textContent = `backup=${res.backup}`;
+};
+(document.getElementById('open-config-btn') as HTMLButtonElement).onclick = async () => {
+  const cfg = await requestJSON<{configPath:string;dbPath:string}>('/config/info');
+  await requestJSON('/open?path=' + encodeURIComponent(cfg.configPath));
+};
 (document.getElementById('undo-link') as HTMLButtonElement).onclick = async () => {
   const out = undoAction(linksState); linksState = out.state;
   if (!out.action) return;
@@ -148,8 +161,10 @@ function frame() {
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-setInterval(() => { void refreshStatus(); }, 1200);
+setInterval(() => { void refreshStatus();
+void requestJSON<{configPath:string;dbPath:string}>('/config/info').then((i)=>{ if(configPathEl) configPathEl.textContent=i.configPath; if(dbPathEl) dbPathEl.textContent=i.dbPath; }).catch(()=>{}); }, 1200);
 void refreshStatus();
+void requestJSON<{configPath:string;dbPath:string}>('/config/info').then((i)=>{ if(configPathEl) configPathEl.textContent=i.configPath; if(dbPathEl) dbPathEl.textContent=i.dbPath; }).catch(()=>{});
 
 
 const graphCanvas = mountGraphCanvas(() => graphState, async (id) => {
@@ -190,3 +205,16 @@ renderLegend();
   graphStatus.textContent = graphState.loading.error ? graphState.loading.error : `nodes=${graphState.dataset.nodes.length} edges=${graphState.dataset.edges.length} layout=${graphState.layout.durationMs}ms`;
   graphPartial.textContent = graphState.dataset.truncated ? 'Partial graph loaded. Adjust filters or depth.' : '';
 };
+
+const themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
+const initialTheme = initTheme();
+themeSelect.value = initialTheme;
+themeSelect.onchange = () => applyTheme(themeSelect.value as 'light'|'dark'|'neon'|'sakura');
+
+document.querySelectorAll('.mobile-tabs button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const pane = (btn as HTMLButtonElement).dataset.pane;
+    document.querySelectorAll('.pane').forEach((p) => p.classList.remove('active'));
+    if (pane) document.getElementById(pane)?.classList.add('active');
+  });
+});
