@@ -1,0 +1,5 @@
+{
+  "scan_ms": 2000,
+  "edges_insert_ms": 3000,
+  "backlinks_p95_ms": 5
+}

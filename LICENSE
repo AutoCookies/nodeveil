@@ -1,21 +1,74 @@
-MIT License
+Nodeveil Community Noncommercial Copyleft License v1.0
 
-Copyright (c) 2026 Pomai
+Copyright (c) 2026 Nodeveil Contributors
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Definitions
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+"Commercial Use" means use of the Software primarily intended for or directed toward
+commercial advantage or monetary compensation, including providing paid services,
+embedding in paid products, or internal business operations that directly generate
+revenue.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+"Distribution" means making the Software or a Modified Version available to any third
+party, in source or binary form, by any means.
+
+"Modification" means any change to the Software, including additions, deletions,
+refactoring, porting, or packaging changes.
+
+"Software" means the Nodeveil source code and official binaries distributed by the
+copyright holders under this license.
+
+2. License Grant
+
+Subject to this license, you are granted a worldwide, royalty-free, non-exclusive
+license to use, copy, modify, and distribute the Software for non-commercial purposes.
+
+3. Non-Commercial Binary Use
+
+You may run and redistribute official unmodified binaries only for non-commercial use.
+Commercial Use of official binaries is not permitted without a separate commercial
+license from the copyright holders.
+
+4. Copyleft on Distributed Modifications
+
+If you Distribute a Modified Version in source or binary form, you must:
+
+a) make the complete corresponding source code of that Modified Version publicly
+available at no charge;
+
+b) license the Modified Version under this same license; and
+
+c) include prominent notices describing your modifications and date of change.
+
+5. Source Availability Requirement
+
+When distributing binaries (modified or unmodified), you must provide a clear reference
+to where complete corresponding source code can be obtained.
+
+6. Trademark
+
+This license does not grant rights to use the trade names, trademarks, service marks,
+or logos of Nodeveil, including "Nodeveil", except as required for reasonable and
+customary attribution.
+
+7. Patent and Other Rights
+
+No patent rights are granted by this license.
+
+8. Termination
+
+Any violation of this license automatically terminates your rights under it.
+Rights may be reinstated upon cure of the violation within 30 days of notice.
+
+9. Disclaimer of Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NONINFRINGEMENT.
+
+10. Limitation of Liability
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES,
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.

@@ -1,0 +1,28 @@
+# Node / frontend
+node_modules/
+dist/
+out/
+coverage/
+.pnpm-store/
+
+# Go
+bin/
+*.test
+*.out
+
+# Build artifacts
+build/
+artifacts/
+*.exe
+*.dll
+*.dylib
+*.so
+*.app
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log

@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="UTF-8"/><title>Nodeveil</title>
+<style>
+:root{--nv-bg:#f7f8fb;--nv-surface:#fff;--nv-text:#1f2430;--nv-muted:#5f6470;--nv-border:#d8dce5;--nv-primary:#2f6fed;--nv-secondary:#6f8bd6;--nv-success:#2f9e44;--nv-warn:#e48f00;--nv-error:#d94848;--nv-graphNode:#2f6fed;--nv-graphEdge:#99a2b2;--nv-graphSelected:#ff8c00;--nv-graphHover:#7b61ff}
+
+body{font-family:system-ui;margin:0;background:var(--nv-bg);color:var(--nv-text)}.shell{display:grid;grid-template-columns:minmax(260px,1.2fr) minmax(280px,1.5fr) minmax(300px,1.3fr) minmax(320px,1.6fr);height:100vh}
+.pane{border-right:1px solid var(--nv-border);padding:12px;overflow:auto;background:var(--nv-surface)}.pane:last-child{border-right:0}
+.row{display:flex;gap:8px;margin-bottom:8px}.list{max-height:55vh;overflow:auto} .muted{color:#666;font-size:12px}
+input,select,button{font:inherit;background:var(--nv-surface);color:var(--nv-text);border:1px solid var(--nv-border)} button:focus,input:focus,select:focus{outline:2px solid var(--nv-primary)} @media (max-width:1100px){.shell{display:block}.pane{display:none}.pane.active{display:block;height:calc(100vh - 56px)} .mobile-tabs{display:flex;gap:4px;padding:8px;background:var(--nv-surface);border-bottom:1px solid var(--nv-border)}} @media (min-width:1101px){.mobile-tabs{display:none}}
+</style></head>
+<body>
+<div class="mobile-tabs"><button data-pane="navigator-pane">Navigator</button><button data-pane="viewer-pane">Viewer</button><button data-pane="links-panel">Links</button><button data-pane="graph-pane">Graph</button></div>
+<div class="shell">
+  <section class="pane active" id="navigator-pane">
+    <h3>Navigator</h3>
+    <div class="row"><input id="root-input" placeholder="/path/to/root" style="flex:1"/><button id="add-root">Add Root</button></div>
+    <div class="row"><input id="search-input" placeholder="Search (Ctrl/Cmd+K)" style="flex:1"/><button id="search-btn">Search</button></div>
+    <ul id="results" class="list"></ul>
+  </section>
+  <section class="pane" id="viewer-pane">
+    <h3>Viewer</h3>
+    <div id="viewer-meta" class="muted">Select a file to view metadata.</div>
+    <div class="row"><button id="copy-path">Copy Path</button><button id="open-os">Open in OS</button></div>
+    <h4>Status</h4>
+    <div id="status">loading…</div>
+    <div id="errors" class="muted"></div><div class="muted">Config: <span id="config-path">-</span></div><div class="muted">DB: <span id="db-path">-</span></div><div class="row"><button id="backup-btn">Backup</button><button id="open-config-btn">Open Config Folder</button></div>
+  </section>
+  <section class="pane" id="links-panel">
+    <h3>Links</h3>
+    <div class="row"><input id="from-id" placeholder="from node id" style="flex:1"/><input id="to-id" placeholder="to node id" style="flex:1"/></div>
+    <div class="row"><select id="relation"><option>related</option><option>ref</option><option>evidence</option><option>depends_on</option></select><button id="link-btn">Link (Ctrl/Cmd+L)</button><button id="undo-link">Undo</button></div>
+    <div id="link-error" class="muted" style="color:#a00"></div>
+    <h4>Linked From Here (OUT)</h4><ul id="out-links" class="list"></ul>
+    <h4>Backlinks To Here (IN)</h4><ul id="in-links" class="list"></ul>
+  </section>
+
+  <section class="pane" id="graph-pane">
+    <h3>Graph View</h3>
+    <div class="row"><button id="open-graph">Open in Graph</button><button id="graph-reset">Reset View</button><select id="theme-select"><option value="light">Light</option><option value="dark">Dark</option><option value="neon">Neon</option><option value="sakura">Sakura</option></select></div>
+    <div class="row"><select id="graph-depth"><option value="1">Depth 1</option><option value="2">Depth 2</option><option value="3">Depth 3</option></select><select id="graph-direction"><option>BOTH</option><option>OUT</option><option>IN</option></select></div>
+    <div class="row"><input id="graph-rel" placeholder="relations csv" style="flex:1"/><input id="graph-ext" placeholder="ext csv" style="flex:1"/><button id="graph-apply">Apply</button></div>
+    <div id="graph-status" class="muted">Fetching neighborhood…</div>
+    <canvas id="graph-canvas" style="width:100%;height:360px;border:1px solid #ddd"></canvas>
+    <div id="graph-legend" class="muted"></div>
+    <div id="graph-partial" class="muted"></div><div class="row"><button id="graph-load-more">Load more</button><button id="graph-narrow">Narrow filters</button></div>
+  </section>
+
+</div>
+<script type="module" src="../dist/renderer/src/main.js"></script>
+</body></html>

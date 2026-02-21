@@ -1,0 +1,94 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: desktop/pnpm-lock.yaml
+
+      - name: Install desktop deps
+        run: pnpm -C desktop install --frozen-lockfile
+
+      - name: Desktop lint
+        run: pnpm -C desktop lint
+
+      - name: Desktop typecheck
+        run: pnpm -C desktop typecheck
+
+      - name: Desktop test
+        run: pnpm -C desktop test
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: engine/go.mod
+
+      - name: Go test
+        run: cd engine && go test ./...
+
+      - name: Go vet
+        run: cd engine && go vet ./...
+
+      - name: Go race tests (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: cd engine && go test -race ./...
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.5
+          working-directory: engine
+
+      - name: Build engine
+        run: cd engine && go build ./cmd/nodeveil-engine
+
+      - name: Build desktop
+        run: pnpm -C desktop build
+
+      - name: Desktop e2e smoke (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd engine && go run ./cmd/nodeveil-engine &
+          ENGINE_PID=$!
+          sleep 2
+          RUN_E2E=1 pnpm -C desktop test:e2e
+          kill $ENGINE_PID
+
+      - name: Desktop perf bench (linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd engine && go run ./cmd/nodeveil-engine &
+          ENGINE_PID=$!
+          sleep 2
+          pnpm -C desktop bench:perf
+          pnpm -C desktop bench:graph
+          pnpm -C desktop bench:theme
+          kill $ENGINE_PID
+
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: engine/go.mod
+      - name: Run engine bench harness
+        run: cd engine && go run ./cmd/nodeveil-bench
