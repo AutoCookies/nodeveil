@@ -1,24 +1,10 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nodeveil</title>
-    <style>
-      body { margin: 0; font-family: system-ui, sans-serif; }
-      .layout { display: grid; grid-template-columns: 1fr 2fr 1fr; height: 100vh; }
-      .pane { border-right: 1px solid #ddd; padding: 12px; }
-      .pane:last-child { border-right: 0; }
-      .status { font-size: 12px; color: #444; margin-top: 8px; }
-    </style>
-  </head>
-  <body>
-    <div class="layout">
-      <section class="pane"><h2>File Tree</h2><p>Placeholder</p></section>
-      <section class="pane"><h2>Viewer</h2><p>Placeholder</p></section>
-      <section class="pane"><h2>Links Panel</h2><p>Placeholder</p></section>
-    </div>
-    <div class="status" id="engine-status">Engine status: checking...</div>
-    <script type="module" src="./src/main.js"></script>
-  </body>
-</html>
+<!doctype html><html><head><meta charset="UTF-8"/><title>Nodeveil</title>
+<style>body{font-family:system-ui;margin:0;padding:16px}.row{display:flex;gap:8px}.panel{border:1px solid #ddd;padding:12px;margin-top:12px}.list{max-height:240px;overflow:auto}</style></head>
+<body>
+<h1>Nodeveil Phase 1</h1>
+<div class="row"><input id="root-input" placeholder="/path/to/root" style="flex:1"/><button id="add-root">Add Root</button></div>
+<div class="panel"><strong>Index Status</strong><div id="status">loading…</div><div id="errors"></div></div>
+<div class="panel"><strong>Roots</strong><ul id="roots" class="list"></ul></div>
+<div class="panel"><strong>Search</strong><div class="row"><input id="search-input" placeholder="search path" style="flex:1"/><button id="search-btn">Search</button></div><ul id="results" class="list"></ul></div>
+<script type="module" src="./src/main.js"></script>
+</body></html>

@@ -1,68 +1,80 @@
 package ipc
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strconv"
 
-	"github.com/nodeveil/nodeveil/engine/internal/db"
+	"github.com/nodeveil/nodeveil/engine/internal/service"
 	"github.com/nodeveil/nodeveil/engine/internal/version"
 )
 
 type Server struct {
 	httpServer *http.Server
-	store      db.RootRepository
+	svc        *service.IndexService
 }
 
-func New(addr string, store db.RootRepository) *Server {
-	s := &Server{store: store}
+func New(addr string, svc *service.IndexService) *Server {
+	s := &Server{svc: svc}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/version", s.handleVersion)
-	mux.HandleFunc("/health", s.handleHealth)
-	mux.HandleFunc("/roots", s.handleRoots)
-
+	mux.HandleFunc("/version", func(w http.ResponseWriter, _ *http.Request) { writeJSON(w, 200, version.Get()) })
+	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) { writeJSON(w, 200, map[string]string{"status": "ok"}) })
+	mux.HandleFunc("/roots", s.roots)
+	mux.HandleFunc("/index/status", func(w http.ResponseWriter, _ *http.Request) { writeJSON(w, 200, s.svc.GetIndexStatus()) })
+	mux.HandleFunc("/search", s.search)
 	s.httpServer = &http.Server{Addr: addr, Handler: mux}
 	return s
 }
+func (s *Server) Start() error { return s.httpServer.ListenAndServe() }
 
-func (s *Server) Start() error {
-	if err := s.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("listen and serve: %w", err)
+func (s *Server) roots(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		roots, err := s.svc.ListRoots(r.Context())
+		if err != nil {
+			writeJSON(w, 500, map[string]string{"error": err.Error()})
+			return
+		}
+		paths := make([]string, 0, len(roots))
+		for _, root := range roots {
+			paths = append(paths, root.Path)
+		}
+		writeJSON(w, 200, map[string]any{"roots": paths})
+	case http.MethodPost:
+		var body struct {
+			Path string `json:"path"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		if err := s.svc.AddRoot(r.Context(), body.Path); err != nil {
+			writeJSON(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]bool{"ok": true})
+	case http.MethodDelete:
+		path := r.URL.Query().Get("path")
+		if err := s.svc.RemoveRoot(r.Context(), path); err != nil {
+			writeJSON(w, 500, map[string]string{"error": err.Error()})
+			return
+		}
+		writeJSON(w, 200, map[string]bool{"ok": true})
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-	return nil
 }
-
-func (s *Server) Shutdown(ctx context.Context) error {
-	if err := s.httpServer.Shutdown(ctx); err != nil {
-		return fmt.Errorf("shutdown server: %w", err)
-	}
-	return nil
-}
-
-func (s *Server) handleVersion(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, version.Get())
-}
-
-func (s *Server) handleHealth(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
-}
-
-func (s *Server) handleRoots(w http.ResponseWriter, r *http.Request) {
-	roots, err := s.store.ListRoots(r.Context())
+func (s *Server) search(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	ext := r.URL.Query().Get("ext")
+	kind := r.URL.Query().Get("kind")
+	rootID, _ := strconv.ParseInt(r.URL.Query().Get("rootId"), 10, 64)
+	res, err := s.svc.SearchFiles(r.Context(), q, ext, rootID, kind)
 	if err != nil {
-		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		writeJSON(w, 500, map[string]string{"error": err.Error()})
 		return
 	}
-	paths := make([]string, 0, len(roots))
-	for _, root := range roots {
-		paths = append(paths, root.Path)
-	}
-	writeJSON(w, http.StatusOK, map[string][]string{"roots": paths})
+	writeJSON(w, 200, map[string]any{"results": res})
 }
-
-func writeJSON(w http.ResponseWriter, code int, payload any) {
-	w.Header().Set("Content-Type", "application/json")
+func writeJSON(w http.ResponseWriter, code int, v any) {
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(code)
-	_ = json.NewEncoder(w).Encode(payload)
+	_ = json.NewEncoder(w).Encode(v)
 }

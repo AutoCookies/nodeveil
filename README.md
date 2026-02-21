@@ -1,56 +1,36 @@
 # Nodeveil
 
-Nodeveil is a filesystem-native hard-link knowledge graph desktop application. Phase 0 establishes foundation quality gates, architecture boundaries, and governance.
+Nodeveil is a filesystem-native hard-link knowledge graph desktop app. Phase 1 delivers a production-grade local file index engine with incremental updates and crash-safe SQLite persistence.
 
-## Positioning
-
-- **Engine-first architecture**: Go engine owns graph/index metadata.
-- **Desktop as client**: Electron renderer is a presentation layer.
-- **Contract-driven IPC**: Protobuf contract defines `GetVersion`, `HealthCheck`, `ListRoots`.
-
-## Repository Layout
-
-- `engine/` — Go services, domain, db, IPC skeleton, benchmark CLI.
-- `desktop/` — Electron + TypeScript app shell with strict lint/typecheck/tests.
-- `proto/` — contract definitions.
-- `docs/` — architecture docs and ADRs.
-
-## Getting Started
-
-### Prerequisites
-
-- Go 1.23+
-- Node.js 20+
-- pnpm 9+
-
-### Setup
+## Getting started
 
 ```bash
 cd engine && go mod download
 pnpm -C desktop install
 ```
 
-### Development workflow
+## Run
 
 ```bash
-# run quality checks
-make lint
-make typecheck
-make test
+cd engine && go run ./cmd/nodeveil-engine
+# in another shell
+pnpm -C desktop build
+```
 
-# engine version output
-cd engine && go run ./cmd/nodeveil-engine --version
+## Checks
 
-# benchmark harness
+```bash
+pnpm -C desktop lint
+pnpm -C desktop typecheck
+pnpm -C desktop test
+cd engine && go test ./...
+cd engine && go test -race ./...
+cd engine && golangci-lint run ./...
 cd engine && go run ./cmd/nodeveil-bench
 ```
 
 ## License summary
 
-Nodeveil uses a source-available non-commercial copyleft license:
-
-- Official binaries are for non-commercial use only.
-- If you distribute modified versions, you must publish full corresponding source under the same license.
-- No trademark rights are granted for the Nodeveil name/logo.
-
-See `LICENSE` for full terms.
+- Non-commercial use for official binaries
+- Distributed modifications must publish full source under same terms
+- No trademark grant for Nodeveil name/logo
