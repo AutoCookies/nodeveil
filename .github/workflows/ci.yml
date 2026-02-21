@@ -37,7 +37,7 @@ jobs:
       - name: Desktop test
         run: pnpm -C desktop test
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: engine/go.mod
 
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version-file: engine/go.mod
       - name: Run engine bench harness
